@@ -6,7 +6,7 @@ output:
     toc: false
 ---
 
-```{r setup}
+```{r setup, message = FALSE}
 library(ggplot2)
 theme_set(theme_bw())
 library(batchtools)
