@@ -3,7 +3,7 @@ title: "PEM vs. PAM split point sensitivity"
 site: workflowr::wflow_site
 output:
   workflowr::wflow_html:
-    toc: false
+    toc: true
 ---
 
 ```{r setup, message = FALSE}
