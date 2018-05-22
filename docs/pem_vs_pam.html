@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+
+
+<title>Lag-lead selection</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-4.5.0/css/font-awesome.min.css" rel="stylesheet" />
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+
+<div class="container-fluid main-container">
+
+<!-- tabsets -->
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+</script>
+
+<!-- code folding -->
+
+
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">simpamm</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/jdblischak/workflowr">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Lag-lead selection</h1>
+
+</div>
+
+
+<p><strong>Last updated:</strong> 2018-05-22</p>
+<strong>workflowr checks:</strong> <small>(Click a bullet for more information)</small>
+<ul>
+<li>
+<details>
+<p><summary> <strong style="color:blue;">✔</strong> <strong>R Markdown file:</strong> up-to-date </summary></p>
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+</details>
+</li>
+<li>
+<details>
+<p><summary> <strong style="color:blue;">✔</strong> <strong>Environment:</strong> empty </summary></p>
+<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+</details>
+</li>
+<li>
+<details>
+<p><summary> <strong style="color:blue;">✔</strong> <strong>Seed:</strong> <code>set.seed(20180517)</code> </summary></p>
+<p>The command <code>set.seed(20180517)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</details>
+</li>
+<li>
+<details>
+<p><summary> <strong style="color:blue;">✔</strong> <strong>Session information:</strong> recorded </summary></p>
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</details>
+</li>
+<li>
+<details>
+<p><summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> f963aae </summary></p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+<pre><code>
+Ignored files:
+    Ignored:    analysis/ll_selection_cache/
+    Ignored:    analysis/pem_vs_pam_cache/
+    Ignored:    docs/figure/
+
+Untracked files:
+    Untracked:  output/sim-lag-lead-registry/
+    Untracked:  output/sim-pem-vs-pam-registry/
+    Untracked:  sandbox/
+
+Unstaged changes:
+    Modified:   analysis/_site.yml
+    Modified:   analysis/about.Rmd
+
+</code></pre>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+</details>
+</li>
+</ul>
+<details>
+<summary> <small><strong>Expand here to see past versions:</strong></small> </summary>
+<ul>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+File
+</th>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+<th style="text-align:left;">
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Rmd
+</td>
+<td style="text-align:left;">
+f963aae
+</td>
+<td style="text-align:left;">
+adibender
+</td>
+<td style="text-align:left;">
+2018-05-22
+</td>
+<td style="text-align:left;">
+wflow_publish(c(“analysis/pem_vs_pam.Rmd”))
+</td>
+</tr>
+</tbody>
+</table>
+</ul>
+</details>
+<hr />
+<pre class="r"><code>library(ggplot2)
+theme_set(theme_bw())
+library(batchtools)</code></pre>
+<pre><code>Loading required package: data.table</code></pre>
+<pre><code>Breaking change introduced in batchtools v0.9.6: The format of the returned data.table of the functions `reduceResultsDataTable()`, getJobTable()`, `getJobPars()`, and `getJobResources()` has changed. List columns are not unnested automatically anymore. To manually unnest tables, batchtools provides the helper function `unwrap()` now, e.g. `unwrap(getJobPars())`. The previously introduced helper function `flatten()` will be deprecated due to a name clash with `purrr::flatten()`.</code></pre>
+<p>Function for data simulation (using <code>pammtools::sim_pexp</code>):</p>
+<pre class="r"><code>## simulation function
+sim_wrapper &lt;- function(data, job, n = 250, time_grid = seq(0, 10, by = 0.05)) {
+
+  # create data set with covariates
+  df &lt;- tibble::tibble(x1 = runif(n, -3, 3), x2 = runif(n, 0, 6))
+  # baseline hazard
+  f0 &lt;- function(t) {dgamma(t, 8, 2) * 6}
+  # define function that generates nz exposures z(t_{z,1}), ..., z(t_{z,Q})
+
+  sim_pexp(formula = ~ -3.5 + f0(t), data = df, cut = time_grid)
+
+}</code></pre>
+<p>Function to estimate hazard from simulated data, either by a PEM or PAM</p>
+<pre class="r"><code>## estimation function
+pam_wrapper &lt;- function(data, job, instance,
+  cut      = NA,
+  bs       = &quot;ps&quot;,
+  mod_type = c(&quot;pem&quot;, &quot;pam&quot;) ,
+  max_time = 10) {
+
+  if(is.na(cut)) {
+    cut &lt;- NULL
+  } else {
+    if(cut == &quot;rough&quot;) {
+      cut &lt;- seq(0, max_time, by = 0.5)
+    } else {
+      if(cut == &quot;fine&quot;) {
+        cut &lt;- seq(0, max_time, by = 0.2)
+      }
+    }
+  }
+
+  ped &lt;- as_ped(data = instance, formula = Surv(time, status) ~ ., cut = cut, id=&quot;id&quot;)
+
+  form &lt;- &quot;ped_status ~ s(tend) + s(x1) + s(x2)&quot;
+  if(mod_type == &quot;pem&quot;) {
+    form     &lt;- ped_status ~ interval
+    time_var &lt;- &quot;interval&quot;
+  } else {
+    form     &lt;- ped_status ~ s(tend, bs = bs,k = k)
+    time_var &lt;- &quot;tend&quot;
+  }
+
+  mod &lt;- gam(formula = form, data = ped, family = poisson(), offset = offset, method = &quot;REML&quot;)
+  # summary(mod)
+
+  make_newdata(ped, tend=unique(tend)) %&gt;%
+    add_hazard(mod, type=&quot;link&quot;, se_mult = qnorm(0.975), time_var = time_var) %&gt;%
+    mutate(truth = -3.5 + dgamma(tend, 8, 2) * 6)
+
+}</code></pre>
+<p>Setup simulation using <code>batchtools</code>:</p>
+<pre class="r"><code>if(!checkmate::test_directory_exists(&quot;output/sim-pem-vs-pam-registry&quot;)) {
+  reg &lt;- makeExperimentRegistry(&quot;output/sim-pem-vs-pam-registry&quot;,
+    packages = c(&quot;mgcv&quot;, &quot;dplyr&quot;, &quot;tidyr&quot;, &quot;pammtools&quot;),
+    seed     = 20052018)
+  reg$cluster.functions = makeClusterFunctionsMulticore(ncpus = 2)
+  addProblem(name   = &quot;pem-vs-pam&quot;, fun = sim_wrapper)
+  addAlgorithm(name = &quot;pem-vs-pam&quot;, fun = pam_wrapper)
+
+  algo_df &lt;- tidyr::crossing(
+    cut = c(NA, &quot;fine&quot;, &quot;rough&quot;),
+    mod_type = c(&quot;pem&quot;, &quot;pam&quot;))
+
+  addExperiments(algo.design  = list(&quot;pem-vs-pam&quot; = algo_df), repls = 20)
+  submitJobs()
+  waitForJobs()
+}</code></pre>
+<pre><code>Warning: replacing previous import &#39;dplyr::vars&#39; by &#39;ggplot2::vars&#39; when
+loading &#39;pammtools&#39;</code></pre>
+<pre><code>[1] FALSE</code></pre>
+<p>Evaluate Simulation:</p>
+<pre class="r"><code>reg     &lt;- loadRegistry(&quot;output/sim-pem-vs-pam-registry&quot;, writeable = TRUE)</code></pre>
+<pre><code>Reading registry in read-write mode</code></pre>
+<pre><code>Loading required package: mgcv</code></pre>
+<pre><code>Loading required package: nlme</code></pre>
+<pre><code>This is mgcv 1.8-23. For overview type &#39;help(&quot;mgcv-package&quot;)&#39;.</code></pre>
+<pre><code>Loading required package: dplyr</code></pre>
+<pre><code>
+Attaching package: &#39;dplyr&#39;</code></pre>
+<pre><code>The following object is masked from &#39;package:nlme&#39;:
+
+    collapse</code></pre>
+<pre><code>The following objects are masked from &#39;package:data.table&#39;:
+
+    between, first, last</code></pre>
+<pre><code>The following object is masked from &#39;package:ggplot2&#39;:
+
+    vars</code></pre>
+<pre><code>The following objects are masked from &#39;package:stats&#39;:
+
+    filter, lag</code></pre>
+<pre><code>The following objects are masked from &#39;package:base&#39;:
+
+    intersect, setdiff, setequal, union</code></pre>
+<pre><code>Loading required package: tidyr</code></pre>
+<pre><code>Loading required package: pammtools</code></pre>
+<pre><code>Warning: replacing previous import &#39;dplyr::vars&#39; by &#39;ggplot2::vars&#39; when
+loading &#39;pammtools&#39;</code></pre>
+<pre><code>
+Attaching package: &#39;pammtools&#39;</code></pre>
+<pre><code>The following object is masked from &#39;package:stats&#39;:
+
+    filter</code></pre>
+<pre><code>No configuration file found</code></pre>
+<pre class="r"><code>ids_pam &lt;- findExperiments(prob.name=&quot;pem-vs-pam&quot;, algo.name=&quot;pem-vs-pam&quot;)
+pars    &lt;- unwrap(getJobPars()) %&gt;% as_tibble()
+res     &lt;- reduceResultsDataTable(ids=findDone(ids_pam)) %&gt;%
+  as_tibble() %&gt;%
+  tidyr::unnest() %&gt;%
+  left_join(pars) %&gt;%
+  mutate(cut = case_when(is.na(cut) ~ &quot;default&quot;, TRUE ~ cut))</code></pre>
+<pre><code>Warning in bind_rows_(x, .id): Unequal factor levels: coercing to character</code></pre>
+<pre><code>Warning in bind_rows_(x, .id): binding character and factor vector,
+coercing into character vector
+
+Warning in bind_rows_(x, .id): binding character and factor vector,
+coercing into character vector
+
+Warning in bind_rows_(x, .id): binding character and factor vector,
+coercing into character vector
+
+Warning in bind_rows_(x, .id): binding character and factor vector,
+coercing into character vector
+
+Warning in bind_rows_(x, .id): binding character and factor vector,
+coercing into character vector
+
+Warning in bind_rows_(x, .id): binding character and factor vector,
+coercing into character vector
+
+Warning in bind_rows_(x, .id): binding character and factor vector,
+coercing into character vector
+
+Warning in bind_rows_(x, .id): binding character and factor vector,
+coercing into character vector
+
+Warning in bind_rows_(x, .id): binding character and factor vector,
+coercing into character vector
+
+Warning in bind_rows_(x, .id): binding character and factor vector,
+coercing into character vector
+
+Warning in bind_rows_(x, .id): binding character and factor vector,
+coercing into character vector
+
+Warning in bind_rows_(x, .id): binding character and factor vector,
+coercing into character vector
+
+Warning in bind_rows_(x, .id): binding character and factor vector,
+coercing into character vector
+
+Warning in bind_rows_(x, .id): binding character and factor vector,
+coercing into character vector
+
+Warning in bind_rows_(x, .id): binding character and factor vector,
+coercing into character vector
+
+Warning in bind_rows_(x, .id): binding character and factor vector,
+coercing into character vector
+
+Warning in bind_rows_(x, .id): binding character and factor vector,
+coercing into character vector
+
+Warning in bind_rows_(x, .id): binding character and factor vector,
+coercing into character vector
+
+Warning in bind_rows_(x, .id): binding character and factor vector,
+coercing into character vector
+
+Warning in bind_rows_(x, .id): binding character and factor vector,
+coercing into character vector
+
+Warning in bind_rows_(x, .id): binding character and factor vector,
+coercing into character vector
+
+Warning in bind_rows_(x, .id): binding character and factor vector,
+coercing into character vector
+
+Warning in bind_rows_(x, .id): binding character and factor vector,
+coercing into character vector
+
+Warning in bind_rows_(x, .id): binding character and factor vector,
+coercing into character vector
+
+Warning in bind_rows_(x, .id): binding character and factor vector,
+coercing into character vector
+
+Warning in bind_rows_(x, .id): binding character and factor vector,
+coercing into character vector
+
+Warning in bind_rows_(x, .id): binding character and factor vector,
+coercing into character vector
+
+Warning in bind_rows_(x, .id): binding character and factor vector,
+coercing into character vector
+
+Warning in bind_rows_(x, .id): binding character and factor vector,
+coercing into character vector
+
+Warning in bind_rows_(x, .id): binding character and factor vector,
+coercing into character vector
+
+Warning in bind_rows_(x, .id): binding character and factor vector,
+coercing into character vector
+
+Warning in bind_rows_(x, .id): binding character and factor vector,
+coercing into character vector
+
+Warning in bind_rows_(x, .id): binding character and factor vector,
+coercing into character vector
+
+Warning in bind_rows_(x, .id): binding character and factor vector,
+coercing into character vector
+
+Warning in bind_rows_(x, .id): binding character and factor vector,
+coercing into character vector
+
+Warning in bind_rows_(x, .id): binding character and factor vector,
+coercing into character vector
+
+Warning in bind_rows_(x, .id): binding character and factor vector,
+coercing into character vector
+
+Warning in bind_rows_(x, .id): binding character and factor vector,
+coercing into character vector
+
+Warning in bind_rows_(x, .id): binding character and factor vector,
+coercing into character vector
+
+Warning in bind_rows_(x, .id): binding character and factor vector,
+coercing into character vector
+
+Warning in bind_rows_(x, .id): binding character and factor vector,
+coercing into character vector</code></pre>
+<pre><code>Joining, by = &quot;job.id&quot;</code></pre>
+<pre class="r"><code>res %&gt;%
+  mutate(
+    sq_error = (truth - hazard)^2,
+    covered = (truth &gt;= ci_lower) &amp; (truth &lt;= ci_upper)) %&gt;%
+  group_by(job.id, mod_type, cut) %&gt;%
+  summarize(
+    RMSE = sqrt(mean(sq_error)),
+    coverage = mean(covered)) %&gt;%
+  group_by(mod_type, cut) %&gt;%
+  summarize(
+    RMSE     = mean(RMSE),
+    coverage = mean(coverage))</code></pre>
+<pre><code># A tibble: 3 x 4
+# Groups:   mod_type [?]
+  mod_type cut      RMSE coverage
+  &lt;chr&gt;    &lt;chr&gt;   &lt;dbl&gt;    &lt;dbl&gt;
+1 pem      default  1.38    0.870
+2 pem      fine     6.84    0.966
+3 pem      rough    3.02    0.920</code></pre>
+<pre class="r"><code>ggplot(res, aes(x=tend, y = hazard)) +
+  geom_step(aes(group = job.id), alpha = 0.3) +
+  geom_line(aes(y = truth, col = &quot;truth&quot;), lwd = 2) +
+  facet_grid(cut ~ mod_type) +
+  coord_cartesian(ylim=c(-5, 0)) +
+  geom_smooth(aes(col=&quot;average estimate&quot;), method=&quot;gam&quot;, formula = y ~ s(x),
+    se=FALSE) +
+  scale_color_brewer(&quot;Method&quot;, palette = &quot;Dark2&quot;) +
+  xlab(&quot;time&quot;)</code></pre>
+<p><img src="figure/pem_vs_pam.Rmd/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div id="session-information" class="section level2">
+<h2>Session information</h2>
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 3.4.4 (2018-03-15)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: Ubuntu 16.04.4 LTS
+
+Matrix products: default
+BLAS: /usr/lib/openblas-base/libblas.so.3
+LAPACK: /usr/lib/libopenblasp-r0.2.18.so
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=de_DE.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=de_DE.UTF-8    LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=de_DE.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=de_DE.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] bindrcpp_0.2.2       pammtools_0.0.9.9003 tidyr_0.8.0         
+[4] dplyr_0.7.4          mgcv_1.8-23          nlme_3.1-137        
+[7] batchtools_0.9.8     data.table_1.10.4-3  ggplot2_2.2.1.9000  
+
+loaded via a namespace (and not attached):
+ [1] progress_1.1.2     tidyselect_0.2.4   reshape2_1.4.3    
+ [4] purrr_0.2.4        splines_3.4.4      lattice_0.20-35   
+ [7] expm_0.999-2       colorspace_1.3-2   htmltools_0.3.6   
+[10] yaml_2.1.18        utf8_1.1.3         survival_2.42-3   
+[13] rlang_0.2.0.9001   R.oo_1.21.0        pillar_1.2.1      
+[16] glue_1.2.0         withr_2.1.2        R.utils_2.6.0     
+[19] rappdirs_0.3.1     RColorBrewer_1.1-2 plyr_1.8.4        
+[22] bindr_0.1.1        stringr_1.3.0      munsell_0.4.3     
+[25] gtable_0.2.0       workflowr_1.0.1    R.methodsS3_1.7.1 
+[28] mvtnorm_1.0-7      evaluate_0.10.1    labeling_0.3      
+[31] knitr_1.20         Rcpp_0.12.16       scales_0.5.0.9000 
+[34] backports_1.1.2    checkmate_1.8.5    debugme_1.1.0     
+[37] brew_1.0-6         digest_0.6.15      stringi_1.1.7     
+[40] msm_1.6.6          grid_3.4.4         rprojroot_1.3-2   
+[43] cli_1.0.0          tools_3.4.4        magrittr_1.5      
+[46] base64url_1.3      lazyeval_0.2.1     tibble_1.4.2      
+[49] Formula_1.2-3      crayon_1.3.4       whisker_0.3-2     
+[52] pkgconfig_2.0.1    Matrix_1.2-13      prettyunits_1.0.2 
+[55] assertthat_0.2.0   rmarkdown_1.9      R6_2.2.2          
+[58] git2r_0.21.0       compiler_3.4.4    </code></pre>
+</div>
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+http://docs.mathjax.org/en/latest/configuration.html.  This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+<hr>
+<p>
+  This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a>
+  analysis was created with
+  <a href="https://github.com/jdblischak/workflowr">workflowr</a> 1.0.1
+</p>
+<hr>
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
