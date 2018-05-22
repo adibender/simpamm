@@ -5,4 +5,5 @@ output:
     toc: false
 ---
 
-Describe your project.
+This repository collects simulation studies w.r.t. piece-wise exponential
+(additive) mixed models (PAMMs)
