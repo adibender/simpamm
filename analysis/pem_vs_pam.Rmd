@@ -12,6 +12,30 @@ theme_set(theme_bw())
 library(batchtools)
 ```
 
+## Motivation
+
+This is a light-weight simulation study to investigate how sensitive the different
+approaches (PEM vs. PAM) to the estimation of the baseline-hazard function are
+to the placement of the interval split points.
+
+
+## Setup
+
+The setup is as follows:
+
+- $n=250$ survival times are simulated from a distribution with log-hazard
+$-3.5 + f(8,2)*6$, where $f(8,2)$ is the density function of the Gamma distribution
+with respective parameters.
+
+- The baseline hazard is estimated by a PEM and  PAM respectively
+
+- Three different settings are used for the interval split point definition
+
+  1. "default": Unique event times from each simulated data set is used
+  2. "fine": A fine, equidistant grid with interval lengths $0.2$
+  3. "rough": A rough, equidistant grid with interval lengths $0.5$
+
+- For each setting, 20 replications are run
 
 Function for data simulation (using `pammtools::sim_pexp`):
 
@@ -59,7 +83,7 @@ pam_wrapper <- function(data, job, instance,
     form     <- ped_status ~ interval
     time_var <- "interval"
   } else {
-    form     <- ped_status ~ s(tend, bs = bs,k = k)
+    form     <- ped_status ~ s(tend, bs = bs, k = 10)
     time_var <- "tend"
   }
 
@@ -73,7 +97,7 @@ pam_wrapper <- function(data, job, instance,
 }
 ```
 
-
+## Setup simulation registry
 Setup simulation using `batchtools`:
 
 ```{r, cache = TRUE, message = FALSE}
@@ -95,8 +119,10 @@ if(!checkmate::test_directory_exists("output/sim-pem-vs-pam-registry")) {
 }
 ```
 
-Evaluate Simulation:
-```{r, message = FALSE}
+
+## Evaluate Simulation
+
+```{r, message = FALSE, warning=FALSE}
 reg     <- loadRegistry("output/sim-pem-vs-pam-registry", writeable = TRUE)
 ids_pam <- findExperiments(prob.name="pem-vs-pam", algo.name="pem-vs-pam")
 pars    <- unwrap(getJobPars()) %>% as_tibble()
@@ -122,6 +148,7 @@ res %>%
 
 ```
 
+## Visualize Estimations
 ```{r}
 ggplot(res, aes(x=tend, y = hazard)) +
   geom_step(aes(group = job.id), alpha = 0.3) +
@@ -133,3 +160,15 @@ ggplot(res, aes(x=tend, y = hazard)) +
   scale_color_brewer("Method", palette = "Dark2") +
   xlab("time")
 ```
+
+
+## Conclusion
+
+- For the PAM, the RMSE has about the same magnitude for all three split point
+settings
+
+- For the PEM, the RMSE is highly dependent on the RMSE, partly because
+even for the "rough" split point setting, in some simulations some intervals
+have no events and the hazard is estimated close to zero (very small log-hazard values)
+and for the "default" setting, where each interval contains at least one
+event, appears to overestimate the hazard on average
