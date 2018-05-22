@@ -245,7 +245,7 @@ div.section {
 </li>
 <li>
 <details>
-<p><summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> e7b4b2d </summary></p>
+<p><summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> 870faf5 </summary></p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
 <pre><code>
 Ignored files:
@@ -290,6 +290,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+Rmd
+</td>
+<td style="text-align:left;">
+870faf5
+</td>
+<td style="text-align:left;">
+adibender
+</td>
+<td style="text-align:left;">
+2018-05-22
+</td>
+<td style="text-align:left;">
+wflow_publish(c(“analysis/pem_vs_pam.Rmd”))
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+html
+</td>
+<td style="text-align:left;">
+2542e6b
+</td>
+<td style="text-align:left;">
+adibender
+</td>
+<td style="text-align:left;">
+2018-05-22
+</td>
+<td style="text-align:left;">
+Build site.
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 Rmd
@@ -457,38 +491,8 @@ loading &#39;pammtools&#39;</code></pre>
 <pre><code>[1] FALSE</code></pre>
 <p>Evaluate Simulation:</p>
 <pre class="r"><code>reg     &lt;- loadRegistry(&quot;output/sim-pem-vs-pam-registry&quot;, writeable = TRUE)</code></pre>
-<pre><code>Reading registry in read-write mode</code></pre>
-<pre><code>Loading required package: mgcv</code></pre>
-<pre><code>Loading required package: nlme</code></pre>
-<pre><code>This is mgcv 1.8-23. For overview type &#39;help(&quot;mgcv-package&quot;)&#39;.</code></pre>
-<pre><code>Loading required package: dplyr</code></pre>
-<pre><code>
-Attaching package: &#39;dplyr&#39;</code></pre>
-<pre><code>The following object is masked from &#39;package:nlme&#39;:
-
-    collapse</code></pre>
-<pre><code>The following objects are masked from &#39;package:data.table&#39;:
-
-    between, first, last</code></pre>
-<pre><code>The following object is masked from &#39;package:ggplot2&#39;:
-
-    vars</code></pre>
-<pre><code>The following objects are masked from &#39;package:stats&#39;:
-
-    filter, lag</code></pre>
-<pre><code>The following objects are masked from &#39;package:base&#39;:
-
-    intersect, setdiff, setequal, union</code></pre>
-<pre><code>Loading required package: tidyr</code></pre>
-<pre><code>Loading required package: pammtools</code></pre>
 <pre><code>Warning: replacing previous import &#39;dplyr::vars&#39; by &#39;ggplot2::vars&#39; when
 loading &#39;pammtools&#39;</code></pre>
-<pre><code>
-Attaching package: &#39;pammtools&#39;</code></pre>
-<pre><code>The following object is masked from &#39;package:stats&#39;:
-
-    filter</code></pre>
-<pre><code>No configuration file found</code></pre>
 <pre class="r"><code>ids_pam &lt;- findExperiments(prob.name=&quot;pem-vs-pam&quot;, algo.name=&quot;pem-vs-pam&quot;)
 pars    &lt;- unwrap(getJobPars()) %&gt;% as_tibble()
 res     &lt;- reduceResultsDataTable(ids=findDone(ids_pam)) %&gt;%
@@ -619,7 +623,6 @@ coercing into character vector
 
 Warning in bind_rows_(x, .id): binding character and factor vector,
 coercing into character vector</code></pre>
-<pre><code>Joining, by = &quot;job.id&quot;</code></pre>
 <pre class="r"><code>res %&gt;%
   mutate(
     sq_error = (truth - hazard)^2,
