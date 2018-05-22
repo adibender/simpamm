@@ -96,7 +96,7 @@ if(!checkmate::test_directory_exists("output/sim-pem-vs-pam-registry")) {
 ```
 
 Evaluate Simulation:
-```{r}
+```{r, message = FALSE}
 reg     <- loadRegistry("output/sim-pem-vs-pam-registry", writeable = TRUE)
 ids_pam <- findExperiments(prob.name="pem-vs-pam", algo.name="pem-vs-pam")
 pars    <- unwrap(getJobPars()) %>% as_tibble()
