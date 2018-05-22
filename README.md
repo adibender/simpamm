@@ -1,5 +1,3 @@
 # simpamm
 
-A [workflowr][] project.
-
-[workflowr]: https://github.com/jdblischak/workflowr
+A collection of simulation studies on piece-wise exponential additive (mixed)models (PA(M)Ms)
