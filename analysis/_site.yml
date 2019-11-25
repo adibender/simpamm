@@ -1,7 +1,7 @@
 name: "simpamm"
 output_dir: "../docs"
 include: [".nojekyll"]
-exclude: ["include"]
+exclude: ["include", "ll_selection.Rmd"]
 navbar:
   title: "simpamm"
   left:
@@ -11,9 +11,11 @@ navbar:
       href: about.html
     - text: "License"
       href: license.html
+    - text: "Articles"
+      href: pem_vs_pam.html
   right:
     - icon: fa-github
-      href: https://github.com/jdblischak/workflowr
+      href: https://github.com/adibender/simpamm
 output:
   workflowr::wflow_html:
     toc: true
