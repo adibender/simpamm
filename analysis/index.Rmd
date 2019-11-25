@@ -11,3 +11,5 @@ models (PEM) and piece-wise exponential additive (mixed) models (PAMM).
 A list of simulations available in this repository is given below:
 
 - [PEM vs. PAM split point sensitivity](pem_vs_pam.html)
+
+- [Confidence Intervals](confidence-intervals.html)

@@ -144,8 +144,6 @@ res %>%
   summarize(
     RMSE     = mean(RMSE),
     coverage = mean(coverage))
-
-
 ```
 
 ## Visualize Estimations
@@ -157,7 +155,7 @@ ggplot(res, aes(x=tend, y = hazard)) +
   coord_cartesian(ylim=c(-5, 0)) +
   geom_smooth(aes(col="average estimate"), method="gam", formula = y ~ s(x),
     se=FALSE) +
-  scale_color_brewer("Method", palette = "Dark2") +
+  scale_color_brewer("", palette = "Dark2") +
   xlab("time")
 ```
 
