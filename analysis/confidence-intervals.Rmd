@@ -195,6 +195,7 @@ res %>%
     "coverage hazard" = mean(hazard),
     "coverage cumulative hazard" = mean(cumu),
     "coverage survival probability" = mean(surv)) %>%
+  ungroup() %>%
   mutate_if(is.numeric, ~round(., 3)) %>%
   rename("basis" = "bs") %>%
   knitr::kable()
