@@ -3,7 +3,7 @@ title: "Confidence Intervals"
 site: workflowr::wflow_site
 output:
   workflowr::wflow_html:
-    toc: false
+    toc: true
 ---
 
 ```{r, message = FALSE}
@@ -16,7 +16,58 @@ library(mgcv)
 library(pammtools)
 library(batchtools)
 knitr::opts_chunk$set(autodep = TRUE)
+# bibliography
+library(RefManageR)
+BibOptions(check.entries = FALSE, hyperlink=FALSE, style = "markdown",
+  max.names = 1)
+bib <- ReadBib("analysis/analysis.bib", check = FALSE)
 ```
+
+
+$$
+\newcommand{\ra}{\rightarrow}
+\newcommand{\bs}[1]{\boldsymbol{#1}}
+\newcommand{\tn}[1]{\textnormal{#1}}
+\newcommand{\mbf}[1]{\mathbf{#1}}
+\newcommand{\nn}{\nonumber}
+\newcommand{\ub}{\underbrace}
+\newcommand{\tbf}[1]{\textbf{#1}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Prob}{\mathbb{P}}
+\newcommand{\bfx}{\mathbf{x}}
+\newcommand{\bfX}{\mathbf{X}}
+\newcommand{\bfV}{\mathbf{V}}
+\newcommand{\bfB}{\mathbf{B}}
+\newcommand{\bfy}{\mathbf{y}}
+\newcommand{\bff}{\mathbf{f}}
+\newcommand{\bsbeta}{\boldsymbol{\beta}}
+\newcommand{\bsgamma}{\boldsymbol{\gamma}}
+\newcommand{\bslambda}{\boldsymbol{\lambda}}
+\newcommand{\bskappa}{\boldsymbol{\kappa}}
+\newcommand{\bsnu}{\boldsymbol{\nu}}
+\newcommand{\bfS}{\mathbf{S}}
+\newcommand{\bfz}{\mathbf{z}}
+\newcommand{\bfZ}{\mathbf{Z}}
+\newcommand{\drm}{\mathrm{d}}
+\newcommand{\tz}{\ensuremath{t_z}}
+\newcommand{\tlag}{t_{\text{lag}}}
+\newcommand{\tlead}{t_{\text{lead}}}
+\newcommand{\mcZ}{\mathcal{Z}}
+\newcommand{\tw}{\mathcal{T}_e(j)}
+\newcommand{\Tw}[1]{\mathcal{T}^{#1}}
+\newcommand{\tilt}{\tilde{t}}
+\newcommand{\Zi}{\ensuremath{\mathcal{Z}_i(t)}}
+\newcommand{\CI}{\ensuremath{C1}}
+\newcommand{\CII}{\ensuremath{C2}}
+\newcommand{\CIII}{\ensuremath{C3}}
+\newcommand{\gCII}{\ensuremath{g_{_{\CII}}}}
+\newcommand{\gCIII}{\ensuremath{g_{_{\CIII}}}}
+\newcommand{\gammaEst}{\hat{\gamma}_g^r}
+\newcommand{\hatEj}{\hat{e}_{j, r}}
+\newcommand{\diag}{\operatorname{diag}}
+\newcommand{\rpexp}{\operatorname{rpexp}}
+\newcommand{\Var}{\operatorname{Var}}$$
 
 ## Motivation
 Here we consider three different ways to calculate confidence intervals for
@@ -27,13 +78,198 @@ hazard and survival probability. The three methods compared here are
 2. Direct transformation
 3. Simulation
 
+## Theory
+PAMMs model the (log-)hazard for which standard errors can be
+obtained straight forward from the theory of GAMMs
+(for details see `r Citet(bib, "Wood2017")`).
+Since $\hat{\bsgamma} \sim N(\bsgamma, \bfV_{\bsgamma})$, it follows that linear
+transformations of $\hat{\bsgamma}$ also follow a normal distribution.
+For example, the (approximate) distribution of the log-hazard for covariate specification
+$\bfx$ (row vector) is given by
+
+$$\label{eq:linear-trafo-nv}
+\bfx'\hat{\bsgamma} \sim N(\bfx'\bsgamma, \bfx' \bfV_{\bsgamma}\bfx).
+$$
+
+However, often we are also interested in quantities derived from the (log)-hazard,
+most notably the cumulative hazard $\Lambda(t|\bfx)$ and the survival probability
+$S(t|\bfx)$ that are non-linear transformations of $\bsgamma$. Three
+approaches to derive the standard errors or confidence intervals for such
+transformations are common in practice:
+
+- Delta method
+- Simulation based on the posterior distribution of the coefficients
+- Direct transformation of the linear predictor
+
+In the following, the three approaches are briefly described in more detail.
+Results of a simulation study with respect to the coverage of the CI obtained by
+the different approaches, are presented in section "Evaluation".
+
+### Delta Method
+Let $\hat{\bsgamma}$  the $P\times 1$ vector of coefficient estimates
+and $h:\R^P \ra \R^m$. Here $m$ is the number of rows in $\bfX$.
+The Delta rule states, that the transformation $h(\hat{\bsgamma})$
+has normal distribution \eqref{eq:delta-rule}
+\begin{equation}\label{eq:delta-rule}
+h(\hat{\bsgamma}) \sim N\left(h(\bsgamma), \bfV_{h(\bsgamma)}
+  :=\nabla h(\bsgamma)(\bfV_{\bsgamma}) \nabla h(\bsgamma)'\right),
+\end{equation}
+where $\nabla h(\bsgamma)$ is the Jacobi matrix.
+
+Below, the variances $\bfV_{h(\bsgamma)}$ are derived for the transformations
+
+- $h(\bsgamma) := \Lambda(t; \bfX, \bsgamma)$ and
+
+- $h(\bsgamma) := S(t; \bfX, \bsgamma) = \exp(-\Lambda(t|\bfX, \bsgamma))$
+
+In the following, let $t \equiv \kappa_J$ (the end point of the last interval) without loss of generality
+and $\bfX$ the $J\times P$ design matrix, such that the log-hazard in
+intervals $j=1,\ldots,J$ is given
+by $\bs{\eta} = \bfx_1'\bsgamma,\ldots, \bfx_J'\bsgamma = \eta_1,\ldots \eta_J$.
+Let further $\mbf{e}^{\mbf{v}}:=(\exp(v_1), \ldots,\exp(v_J))'$ and
+$\mbf{E}^{\mbf{v}}$  the respective diagonal matrix with elements
+$\mbf{E}^{\mbf{v}}_{j,j}=\exp(v_j), j=1,\ldots,J$ and
+$\mbf{E}^{\mbf{v}}_{j,j'}=0\ \forall j'\neq j$.
+
+#### Cumulative hazard
+
+In the context of PAMMs, the cumulative hazard at time $t$ is given
+by $\Lambda(t|\bfX, \bsgamma) = \sum_{j=1}^J \Delta_j \exp(\eta_j)$,
+with $\Delta_j = \kappa_{j}-\kappa_{j-1}$, the length of the $j$-th interval.
+In matrix notation this can be written as $\bs{\Delta} \mbf{e}^{\bs{\eta}}$,
+where $\bs{\Delta}$ is the lower triangular matrix \eqref{eq:q-weights}
+\begin{equation}\label{eq:q-weights}
+\boldsymbol{\Delta} =
+\begin{pmatrix}
+\Delta_1 & \cdots & 0\\
+\vdots   & \ddots & \vdots\\
+\Delta_1 & \cdots & \Delta_J
+\end{pmatrix}
+\end{equation}
+
+These are known constants, thus it suffices to derive the Jacobi matrix for
+$\mbf{e}^{\bs{\eta}}$:
+
+\begin{align}
+\nabla \mbf{e}^{\bs{\eta}} &=
+\begin{pmatrix}
+\partial \frac{\exp(\bfx_1'\bsgamma)}{\partial \gamma_1} & \cdots  &\frac{\exp(\bfx_1'\bsgamma)}{\partial \gamma_{P}}\\
+\vdots &\ddots & \vdots\\
+\partial \frac{\exp(\bfx_J'\bsgamma)}{\partial \gamma_1} & \cdots &\frac{\exp(\bfx_J'\bsgamma)}{\partial \gamma_{P}}
+\end{pmatrix}\label{eq:jacobi-hazard2}\\
+ & =
+ \begin{pmatrix}
+ \exp(\eta_1)\cdot x_{1,1} & \cdots & \exp(\eta_1)\cdot x_{1,P}\\
+ \vdots & \ddots & \vdots \\
+ \exp(\eta_J)\cdot x_{J,1} & \cdots & \exp(\eta_J)\cdot x_{J,P}\\
+ \end{pmatrix} \\
+& = \mbf{E}^{\bs{\eta}}\bfX\label{eq:jacobi-hazard}
+\end{align}
+
+Thus the variance of
+the cumulative hazard is given by
+
+$$\begin{align}
+\Var(\Lambda(t|\bfX, \bsgamma))
+ & = (\bs{\Delta} \mbf{E}^{\bs{\eta}}\bfX) \bfV_{\bsgamma} (\bs{\Delta}\mbf{E}^{\bs{\eta}}\bfX)'\label{eq:V-delta-cumu}\\
+ & = (\bs{\Delta} \mbf{E}^{\bs{\eta}}) (\bfX \bfV_{\bsgamma}\bfX') (\bs{\Delta}\mbf{E}^{\bs{\eta}})'\label{eq:V-delta-cumu2}
+\end{align}$$
+
+This result was also stated by `r Citet(bib, "Carstensen2005")` in a slightly
+less general form.
+When $t \neq \kappa_J$, $\bfX$ is a $j(t) \times P$ matrix
+and $\bs{\Delta}$ is a $j(t)\times j(t)$ matrix
+with elements $\Delta_1,\ldots, \Delta_{j(t)}$, where
+$j(t) = j:t\in (\kappa_{j-1},\kappa_j]$ and $\Delta_{j(t)}=t-\kappa_{j(t)-1}$.
+
+#### Survival probability
+
+Results for the survivor function can be obtained similar to the cumulative
+hazard by defining
+$h(\bsgamma) := S(t|\bfX, \bsgamma)=\exp(-\Lambda(t|\bfX,\bsgamma))$.
+The Jacobi matrix is then given by
+
+$$\begin{align}
+\nabla h(\bsgamma)
+&= \begin{pmatrix}
+ \frac{\partial e^{-\Delta_1e^{\eta_1}}}{\partial \gamma_1} & \cdots & \frac{\partial e^{-\Delta_1e^{\eta_1}}}{\partial \gamma_p}\\
+ \vdots & \ddots & \vdots\\
+ \frac{\partial e^{-\sum_{j=1}^J \Delta_je^{\eta_j}}}{\partial \gamma_1} & \cdots &\frac{\partial \ e^{-\sum_{j=1}^J \Delta_je^{\eta_j}}}{\partial \gamma_P}
+ \end{pmatrix}\nn\\
+&= \begin{pmatrix}
+ e^{-\Delta_1e^{\eta_1}}\cdot(-\Delta_1e^{\eta_1})\cdot x_{1,1} & \cdots & e^{-\Delta_1e^{\eta_1}}\cdot(-\Delta_1e^{\eta_1})\cdot x_{1,P}\\
+ \vdots & \ddots & \vdots\\
+ e^{-\sum_{j=1}^J \Delta_je^{\eta_j}}\cdot(-\sum_{j=1}^{J}\Delta_j e^{\eta_j}\cdot x_{j,1}) & \cdots & e^{-\sum_{j=1}^J \Delta_je^{\eta_j}}\cdot(-\sum_{j=1}^{J}\Delta_j e^{\eta_j}\cdot x_{j,P})
+ \end{pmatrix}\\
+ & = -\mbf{E}^{-\bs{\Delta}\mbf{e}^{\bs{\eta}}}\bs{\Delta}\mbf{E}^{\bs{\eta}}\bfX\label{eq:jacobi-surv}
+\end{align}
+$$
+
+The variance of the survival probability is given below:
+
+$$
+\begin{align}
+\Var(S(t|\bfX, \bsgamma))
+  & = (-\mbf{E}^{-\bs{\Delta}\mbf{e}^{\bs{\eta}}}\bs{\Delta}\mbf{E}^{\bs{\eta}}\bfX)\bfV_{\bsgamma} (-\mbf{E}^{-\bs{\Delta}\mbf{e}^{\bs{\eta}}}\bs{\Delta}\mbf{E}^{\bs{\eta}}\bfX)'\label{eq:V-delta-surv}\\
+  & = (-\mbf{E}^{-\bs{\Delta}\mbf{e}^{\bs{\eta}}}\bs{\Delta}\mbf{E}^{\bs{\eta}})(\bfX\bfV_{\bsgamma}\bfX') (-\mbf{E}^{-\bs{\Delta}\mbf{e}^{\bs{\eta}}}\bs{\Delta}\mbf{E}^{\bs{\eta}})'\label{eq:V-delta-surv3}\\
+  & = \mbf{E}^{-\bs{\Delta}\mbf{e}^{\bs{\eta}}} \Var(\Lambda(t|\bfX,\bsgamma))(\mbf{E}^{-\bs{\Delta}\mbf{e}^{\bs{\eta}}})'.\label{eq:V-delta-surv2}
+\end{align}
+$$
+
+The second formulation can be used when the variance for
+$\bfX\bsgamma$ is already available.
+The last expression is usefull when the variance of the
+cumulative hazard was obtained in a previous calculation.
 
 
-## Data Simulation
+
+### Simulation based inference
+When the estimation process of a GAMM is viewed from an empirical Bayes point
+of view, which, from a computational perspective, is equivalent to the REML based
+approach, it can be shown
+(e.g., `r Citet(bib, after = ", Ch. 7.6.1", "Fahrmeir2013")`, `r Citet(bib, after=", Ch. 4.2.4, 5.8, 6.10", "Wood2017")`),
+that the posterior distribution of regression parameters $\bsgamma$ is given by
+
+$$
+\begin{equation}\label{eq:posterior-gamma}
+\bsgamma|\bfy,\bsnu \sim N(\hat{\bsgamma}, \bfV_{\bsgamma})
+\end{equation}
+$$
+
+with $\hat{\bsgamma}$ and $\bfV_{\bsgamma} = (\bfX'\tbf{W}\bfX + \tbf{S}_{\nu})^{-1}$
+as before.
+This result can be used to compute Bayesian credible intervals for any quantity
+of interest that is a function of regression coefficients $\bsgamma$.
+In the context of PAMMs, this approach was described by `r Citet(bib, "Argyropoulos2015")`.
+For example, 95\% CIs for $\hat{S}(t|\bfx_j)$ are obtained by
+drawing samples $\bsgamma_r, r=1,\ldots,R$ from the posterior,
+calculating $\hat{S}_r(t,\bfx_j)$.
+The lower and upper boarders of the CI is
+then obtained as the $2.5\%$ and $97.5\%$ quantiles of the $R$ survival probabilities,
+respectively.
+
+### Direct transformation
+One simple approach, which is often used in practice to calculating confidence intervals (CI) for monotone
+transformations of the linear predictor, is to apply the
+transformation to the lower and upper bound of the CI for the linear predictor.
+Thus, when $\hat{\eta}_j=\bfx_j'\hat{\bsgamma}$ is the log-hazard in the $j$-th
+interval with CI
+
+$$
+[\hat{l}_j=\hat{\eta}_j-\zeta_{1-\alpha/2}\hat{\sigma}_{\hat{\eta}_j},\hat{u}_j =
+\hat{\eta}_j+\zeta_{1-\alpha/2}\hat{\sigma}_{\hat{\eta}_j}]
+$$, with $\zeta_{1-\alpha/2}$
+the $1-\alpha/2$ quantile of the normal distribution,
+the CI for $h(\hat{\eta}_j)$ is obtained by $[h(\hat{l}_j); h(\hat{u}_j)]$.
+
+
+## Empirical Results
+### Data Simulation
 We simulate data with log-hazard rate
-$\log(\lambda(t|x)) = -3.5 + f(8,2) \cdot 6 - 0.5\cdot x_1 + \sqrt{x_2}$,
+$$
+\log(\lambda(t|x)) = -3.5 + f(8,2) \cdot 6 - 0.5\cdot x_1 + \sqrt{x_2},
+$$
 where $f(8,2)$ is the gamma density function with respective parameters.
-
 
 The below wrapper creates a data set with $n = 500$ survival times based on
 above hazard. The simulation of survival times is performed using function
@@ -56,13 +292,14 @@ sim_wrapper <- function(data, job, n = 500, time_grid = seq(0, 10, by = 0.05)) {
 ```
 
 
-## Estimation
+### Estimation
 
 The below wrapper
 - transforms the simulated survival data into the
 [PED format](https://adibender.github.io/pammtools/articles/data-transformation.html)
 - fits the PAMM
 - returns a data frame that contains the coverage for each method
+- two types of splines are considered for the estimation of the baseline hazard, thinplate splines (tp)and P-Splines (ps)
 
 <details>
   <summary>Expand to see function source code</summary>
@@ -142,7 +379,7 @@ ci_wrapper <- function(
 </details>
 
 
-## Evaluation
+### Evaluation
 
 We simulate 100 data sets and obtain respective estimates using package
 **`batchtools`**:
