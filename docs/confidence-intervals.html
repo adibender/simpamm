@@ -20,6 +20,9 @@
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
@@ -250,6 +253,69 @@ $(document).ready(function () {
 
 
 
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
 
 </head>
 
@@ -257,6 +323,16 @@ $(document).ready(function () {
 
 
 <div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
 
 
 
@@ -331,7 +407,7 @@ div.section {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2019-11-25
+<strong>Last updated:</strong> 2019-11-26
 </p>
 <p>
 <strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
@@ -428,10 +504,10 @@ unnamed-chunk-4
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomadibendersimpammtreecda53fd2be6ab594342722401668453312af3720targetblankcda53fda"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/adibender/simpamm/tree/cda53fd2be6ab594342722401668453312af3720" target="_blank">cda53fd</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomadibendersimpammtree9c4d35cc5c35bf3f89979dabd90a9ac9e025feebtargetblank9c4d35ca"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/adibender/simpamm/tree/9c4d35cc5c35bf3f89979dabd90a9ac9e025feeb" target="_blank">9c4d35c</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomadibendersimpammtreecda53fd2be6ab594342722401668453312af3720targetblankcda53fda" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomadibendersimpammtree9c4d35cc5c35bf3f89979dabd90a9ac9e025feebtargetblank9c4d35ca" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -445,7 +521,9 @@ Ignored files:
     Ignored:    analysis/time-varying-cumulative-effect_cache/
 
 Untracked files:
+    Untracked:  analysis/analysis.bib
     Untracked:  analysis/fit-vs-truth-ped.gif
+    Untracked:  analysis/math_definitions.tex
     Untracked:  analysis/time-varying-cumulative-effect.Rmd
     Untracked:  output/sim-conf-int-registry/
     Untracked:  output/sim-lag-lead-registry/
@@ -491,6 +569,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/adibender/simpamm/blob/9c4d35cc5c35bf3f89979dabd90a9ac9e025feeb/analysis/confidence-intervals.Rmd" target="_blank">9c4d35c</a>
+</td>
+<td>
+Andreas Bender
+</td>
+<td>
+2019-11-25
+</td>
+<td>
+Add math
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/adibender/simpamm/0969c5ddff76b0a45d4f08eb65c84cc2651b7254/docs/confidence-intervals.html" target="_blank">0969c5d</a>
+</td>
+<td>
+Andreas Bender
+</td>
+<td>
+2019-11-25
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 html
@@ -591,7 +703,56 @@ library(survival)
 library(mgcv)
 library(pammtools)
 library(batchtools)
-knitr::opts_chunk$set(autodep = TRUE)</code></pre>
+knitr::opts_chunk$set(autodep = TRUE)
+# bibliography
+library(RefManageR)
+BibOptions(check.entries = FALSE, hyperlink=FALSE, style = &quot;markdown&quot;,
+  max.names = 1)
+bib &lt;- ReadBib(&quot;analysis/analysis.bib&quot;, check = FALSE)</code></pre>
+<p><span class="math display">\[
+\newcommand{\ra}{\rightarrow}
+\newcommand{\bs}[1]{\boldsymbol{#1}}
+\newcommand{\tn}[1]{\textnormal{#1}}
+\newcommand{\mbf}[1]{\mathbf{#1}}
+\newcommand{\nn}{\nonumber}
+\newcommand{\ub}{\underbrace}
+\newcommand{\tbf}[1]{\textbf{#1}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Prob}{\mathbb{P}}
+\newcommand{\bfx}{\mathbf{x}}
+\newcommand{\bfX}{\mathbf{X}}
+\newcommand{\bfV}{\mathbf{V}}
+\newcommand{\bfB}{\mathbf{B}}
+\newcommand{\bfy}{\mathbf{y}}
+\newcommand{\bff}{\mathbf{f}}
+\newcommand{\bsbeta}{\boldsymbol{\beta}}
+\newcommand{\bsgamma}{\boldsymbol{\gamma}}
+\newcommand{\bslambda}{\boldsymbol{\lambda}}
+\newcommand{\bskappa}{\boldsymbol{\kappa}}
+\newcommand{\bsnu}{\boldsymbol{\nu}}
+\newcommand{\bfS}{\mathbf{S}}
+\newcommand{\bfz}{\mathbf{z}}
+\newcommand{\bfZ}{\mathbf{Z}}
+\newcommand{\drm}{\mathrm{d}}
+\newcommand{\tz}{\ensuremath{t_z}}
+\newcommand{\tlag}{t_{\text{lag}}}
+\newcommand{\tlead}{t_{\text{lead}}}
+\newcommand{\mcZ}{\mathcal{Z}}
+\newcommand{\tw}{\mathcal{T}_e(j)}
+\newcommand{\Tw}[1]{\mathcal{T}^{#1}}
+\newcommand{\tilt}{\tilde{t}}
+\newcommand{\Zi}{\ensuremath{\mathcal{Z}_i(t)}}
+\newcommand{\CI}{\ensuremath{C1}}
+\newcommand{\CII}{\ensuremath{C2}}
+\newcommand{\CIII}{\ensuremath{C3}}
+\newcommand{\gCII}{\ensuremath{g_{_{\CII}}}}
+\newcommand{\gCIII}{\ensuremath{g_{_{\CIII}}}}
+\newcommand{\gammaEst}{\hat{\gamma}_g^r}
+\newcommand{\hatEj}{\hat{e}_{j, r}}
+\newcommand{\diag}{\operatorname{diag}}
+\newcommand{\rpexp}{\operatorname{rpexp}}
+\newcommand{\Var}{\operatorname{Var}}\]</span></p>
 <div id="motivation" class="section level2">
 <h2>Motivation</h2>
 <p>Here we consider three different ways to calculate confidence intervals for hazard rates estimated by PAMMs and derivatives thereof, i.e., the cumulative hazard and survival probability. The three methods compared here are</p>
@@ -601,9 +762,124 @@ knitr::opts_chunk$set(autodep = TRUE)</code></pre>
 <li>Simulation</li>
 </ol>
 </div>
-<div id="data-simulation" class="section level2">
-<h2>Data Simulation</h2>
-<p>We simulate data with log-hazard rate <span class="math inline">\(\log(\lambda(t|x)) = -3.5 + f(8,2) \cdot 6 - 0.5\cdot x_1 + \sqrt{x_2}\)</span>, where <span class="math inline">\(f(8,2)\)</span> is the gamma density function with respective parameters.</p>
+<div id="theory" class="section level2">
+<h2>Theory</h2>
+<p>PAMMs model the (log-)hazard for which standard errors can be obtained straight forward from the theory of GAMMs (for details see Wood (2017)). Since <span class="math inline">\(\hat{\bsgamma} \sim N(\bsgamma, \bfV_{\bsgamma})\)</span>, it follows that linear transformations of <span class="math inline">\(\hat{\bsgamma}\)</span> also follow a normal distribution. For example, the (approximate) distribution of the log-hazard for covariate specification <span class="math inline">\(\bfx\)</span> (row vector) is given by</p>
+<p><span class="math display">\[\label{eq:linear-trafo-nv}
+\bfx&#39;\hat{\bsgamma} \sim N(\bfx&#39;\bsgamma, \bfx&#39; \bfV_{\bsgamma}\bfx).
+\]</span></p>
+<p>However, often we are also interested in quantities derived from the (log)-hazard, most notably the cumulative hazard <span class="math inline">\(\Lambda(t|\bfx)\)</span> and the survival probability <span class="math inline">\(S(t|\bfx)\)</span> that are non-linear transformations of <span class="math inline">\(\bsgamma\)</span>. Three approaches to derive the standard errors or confidence intervals for such transformations are common in practice:</p>
+<ul>
+<li>Delta method</li>
+<li>Simulation based on the posterior distribution of the coefficients</li>
+<li>Direct transformation of the linear predictor</li>
+</ul>
+<p>In the following, the three approaches are briefly described in more detail. Results of a simulation study with respect to the coverage of the CI obtained by the different approaches, are presented in section “Evaluation”.</p>
+<div id="delta-method" class="section level3">
+<h3>Delta Method</h3>
+Let <span class="math inline">\(\hat{\bsgamma}\)</span> the <span class="math inline">\(P\times 1\)</span> vector of coefficient estimates and <span class="math inline">\(h:\R^P \ra \R^m\)</span>. Here <span class="math inline">\(m\)</span> is the number of rows in <span class="math inline">\(\bfX\)</span>. The Delta rule states, that the transformation <span class="math inline">\(h(\hat{\bsgamma})\)</span> has normal distribution 
+<span class="math display">\[\begin{equation}\label{eq:delta-rule}
+h(\hat{\bsgamma}) \sim N\left(h(\bsgamma), \bfV_{h(\bsgamma)}
+  :=\nabla h(\bsgamma)(\bfV_{\bsgamma}) \nabla h(\bsgamma)&#39;\right),
+\end{equation}\]</span>
+<p>where <span class="math inline">\(\nabla h(\bsgamma)\)</span> is the Jacobi matrix.</p>
+<p>Below, the variances <span class="math inline">\(\bfV_{h(\bsgamma)}\)</span> are derived for the transformations</p>
+<ul>
+<li><p><span class="math inline">\(h(\bsgamma) := \Lambda(t; \bfX, \bsgamma)\)</span> and</p></li>
+<li><p><span class="math inline">\(h(\bsgamma) := S(t; \bfX, \bsgamma) = \exp(-\Lambda(t|\bfX, \bsgamma))\)</span></p></li>
+</ul>
+<p>In the following, let <span class="math inline">\(t \equiv \kappa_J\)</span> (the end point of the last interval) without loss of generality and <span class="math inline">\(\bfX\)</span> the <span class="math inline">\(J\times P\)</span> design matrix, such that the log-hazard in intervals <span class="math inline">\(j=1,\ldots,J\)</span> is given by <span class="math inline">\(\bs{\eta} = \bfx_1&#39;\bsgamma,\ldots, \bfx_J&#39;\bsgamma = \eta_1,\ldots \eta_J\)</span>. Let further <span class="math inline">\(\mbf{e}^{\mbf{v}}:=(\exp(v_1), \ldots,\exp(v_J))&#39;\)</span> and <span class="math inline">\(\mbf{E}^{\mbf{v}}\)</span> the respective diagonal matrix with elements <span class="math inline">\(\mbf{E}^{\mbf{v}}_{j,j}=\exp(v_j), j=1,\ldots,J\)</span> and <span class="math inline">\(\mbf{E}^{\mbf{v}}_{j,j&#39;}=0\ \forall j&#39;\neq j\)</span>.</p>
+<div id="cumulative-hazard" class="section level4">
+<h4>Cumulative hazard</h4>
+In the context of PAMMs, the cumulative hazard at time <span class="math inline">\(t\)</span> is given by <span class="math inline">\(\Lambda(t|\bfX, \bsgamma) = \sum_{j=1}^J \Delta_j \exp(\eta_j)\)</span>, with <span class="math inline">\(\Delta_j = \kappa_{j}-\kappa_{j-1}\)</span>, the length of the <span class="math inline">\(j\)</span>-th interval. In matrix notation this can be written as <span class="math inline">\(\bs{\Delta} \mbf{e}^{\bs{\eta}}\)</span>, where <span class="math inline">\(\bs{\Delta}\)</span> is the lower triangular matrix 
+<span class="math display">\[\begin{equation}\label{eq:q-weights}
+\boldsymbol{\Delta} =
+\begin{pmatrix}
+\Delta_1 &amp; \cdots &amp; 0\\
+\vdots   &amp; \ddots &amp; \vdots\\
+\Delta_1 &amp; \cdots &amp; \Delta_J
+\end{pmatrix}
+\end{equation}\]</span>
+<p>These are known constants, thus it suffices to derive the Jacobi matrix for <span class="math inline">\(\mbf{e}^{\bs{\eta}}\)</span>:</p>
+<span class="math display">\[\begin{align}
+\nabla \mbf{e}^{\bs{\eta}} &amp;=
+\begin{pmatrix}
+\partial \frac{\exp(\bfx_1&#39;\bsgamma)}{\partial \gamma_1} &amp; \cdots  &amp;\frac{\exp(\bfx_1&#39;\bsgamma)}{\partial \gamma_{P}}\\
+\vdots &amp;\ddots &amp; \vdots\\
+\partial \frac{\exp(\bfx_J&#39;\bsgamma)}{\partial \gamma_1} &amp; \cdots &amp;\frac{\exp(\bfx_J&#39;\bsgamma)}{\partial \gamma_{P}}
+\end{pmatrix}\label{eq:jacobi-hazard2}\\
+ &amp; =
+ \begin{pmatrix}
+ \exp(\eta_1)\cdot x_{1,1} &amp; \cdots &amp; \exp(\eta_1)\cdot x_{1,P}\\
+ \vdots &amp; \ddots &amp; \vdots \\
+ \exp(\eta_J)\cdot x_{J,1} &amp; \cdots &amp; \exp(\eta_J)\cdot x_{J,P}\\
+ \end{pmatrix} \\
+&amp; = \mbf{E}^{\bs{\eta}}\bfX\label{eq:jacobi-hazard}
+\end{align}\]</span>
+<p>Thus the variance of the cumulative hazard is given by</p>
+<p><span class="math display">\[\begin{align}
+\Var(\Lambda(t|\bfX, \bsgamma))
+ &amp; = (\bs{\Delta} \mbf{E}^{\bs{\eta}}\bfX) \bfV_{\bsgamma} (\bs{\Delta}\mbf{E}^{\bs{\eta}}\bfX)&#39;\label{eq:V-delta-cumu}\\
+ &amp; = (\bs{\Delta} \mbf{E}^{\bs{\eta}}) (\bfX \bfV_{\bsgamma}\bfX&#39;) (\bs{\Delta}\mbf{E}^{\bs{\eta}})&#39;\label{eq:V-delta-cumu2}
+\end{align}\]</span></p>
+<p>This result was also stated by Carstensen (2005) in a slightly less general form. When <span class="math inline">\(t \neq \kappa_J\)</span>, <span class="math inline">\(\bfX\)</span> is a <span class="math inline">\(j(t) \times P\)</span> matrix and <span class="math inline">\(\bs{\Delta}\)</span> is a <span class="math inline">\(j(t)\times j(t)\)</span> matrix with elements <span class="math inline">\(\Delta_1,\ldots, \Delta_{j(t)}\)</span>, where <span class="math inline">\(j(t) = j:t\in (\kappa_{j-1},\kappa_j]\)</span> and <span class="math inline">\(\Delta_{j(t)}=t-\kappa_{j(t)-1}\)</span>.</p>
+</div>
+<div id="survival-probability" class="section level4">
+<h4>Survival probability</h4>
+<p>Results for the survivor function can be obtained similar to the cumulative hazard by defining <span class="math inline">\(h(\bsgamma) := S(t|\bfX, \bsgamma)=\exp(-\Lambda(t|\bfX,\bsgamma))\)</span>. The Jacobi matrix is then given by</p>
+<p><span class="math display">\[\begin{align}
+\nabla h(\bsgamma)
+&amp;= \begin{pmatrix}
+ \frac{\partial e^{-\Delta_1e^{\eta_1}}}{\partial \gamma_1} &amp; \cdots &amp; \frac{\partial e^{-\Delta_1e^{\eta_1}}}{\partial \gamma_p}\\
+ \vdots &amp; \ddots &amp; \vdots\\
+ \frac{\partial e^{-\sum_{j=1}^J \Delta_je^{\eta_j}}}{\partial \gamma_1} &amp; \cdots &amp;\frac{\partial \ e^{-\sum_{j=1}^J \Delta_je^{\eta_j}}}{\partial \gamma_P}
+ \end{pmatrix}\nn\\
+&amp;= \begin{pmatrix}
+ e^{-\Delta_1e^{\eta_1}}\cdot(-\Delta_1e^{\eta_1})\cdot x_{1,1} &amp; \cdots &amp; e^{-\Delta_1e^{\eta_1}}\cdot(-\Delta_1e^{\eta_1})\cdot x_{1,P}\\
+ \vdots &amp; \ddots &amp; \vdots\\
+ e^{-\sum_{j=1}^J \Delta_je^{\eta_j}}\cdot(-\sum_{j=1}^{J}\Delta_j e^{\eta_j}\cdot x_{j,1}) &amp; \cdots &amp; e^{-\sum_{j=1}^J \Delta_je^{\eta_j}}\cdot(-\sum_{j=1}^{J}\Delta_j e^{\eta_j}\cdot x_{j,P})
+ \end{pmatrix}\\
+ &amp; = -\mbf{E}^{-\bs{\Delta}\mbf{e}^{\bs{\eta}}}\bs{\Delta}\mbf{E}^{\bs{\eta}}\bfX\label{eq:jacobi-surv}
+\end{align}
+\]</span></p>
+<p>The variance of the survival probability is given below:</p>
+<p><span class="math display">\[
+\begin{align}
+\Var(S(t|\bfX, \bsgamma))
+  &amp; = (-\mbf{E}^{-\bs{\Delta}\mbf{e}^{\bs{\eta}}}\bs{\Delta}\mbf{E}^{\bs{\eta}}\bfX)\bfV_{\bsgamma} (-\mbf{E}^{-\bs{\Delta}\mbf{e}^{\bs{\eta}}}\bs{\Delta}\mbf{E}^{\bs{\eta}}\bfX)&#39;\label{eq:V-delta-surv}\\
+  &amp; = (-\mbf{E}^{-\bs{\Delta}\mbf{e}^{\bs{\eta}}}\bs{\Delta}\mbf{E}^{\bs{\eta}})(\bfX\bfV_{\bsgamma}\bfX&#39;) (-\mbf{E}^{-\bs{\Delta}\mbf{e}^{\bs{\eta}}}\bs{\Delta}\mbf{E}^{\bs{\eta}})&#39;\label{eq:V-delta-surv3}\\
+  &amp; = \mbf{E}^{-\bs{\Delta}\mbf{e}^{\bs{\eta}}} \Var(\Lambda(t|\bfX,\bsgamma))(\mbf{E}^{-\bs{\Delta}\mbf{e}^{\bs{\eta}}})&#39;.\label{eq:V-delta-surv2}
+\end{align}
+\]</span></p>
+<p>The second formulation can be used when the variance for <span class="math inline">\(\bfX\bsgamma\)</span> is already available. The last expression is usefull when the variance of the cumulative hazard was obtained in a previous calculation.</p>
+</div>
+</div>
+<div id="simulation-based-inference" class="section level3">
+<h3>Simulation based inference</h3>
+<p>When the estimation process of a GAMM is viewed from an empirical Bayes point of view, which, from a computational perspective, is equivalent to the REML based approach, it can be shown (e.g., Fahrmeir, Kneib, Lang, and Marx (2013, Ch. 7.6.1), Wood (2017, Ch. 4.2.4, 5.8, 6.10)), that the posterior distribution of regression parameters <span class="math inline">\(\bsgamma\)</span> is given by</p>
+<p><span class="math display">\[
+\begin{equation}\label{eq:posterior-gamma}
+\bsgamma|\bfy,\bsnu \sim N(\hat{\bsgamma}, \bfV_{\bsgamma})
+\end{equation}
+\]</span></p>
+<p>with <span class="math inline">\(\hat{\bsgamma}\)</span> and <span class="math inline">\(\bfV_{\bsgamma} = (\bfX&#39;\tbf{W}\bfX + \tbf{S}_{\nu})^{-1}\)</span> as before. This result can be used to compute Bayesian credible intervals for any quantity of interest that is a function of regression coefficients <span class="math inline">\(\bsgamma\)</span>. In the context of PAMMs, this approach was described by Argyropoulos and Unruh (2015). For example, 95% CIs for <span class="math inline">\(\hat{S}(t|\bfx_j)\)</span> are obtained by drawing samples <span class="math inline">\(\bsgamma_r, r=1,\ldots,R\)</span> from the posterior, calculating <span class="math inline">\(\hat{S}_r(t,\bfx_j)\)</span>. The lower and upper boarders of the CI is then obtained as the <span class="math inline">\(2.5\%\)</span> and <span class="math inline">\(97.5\%\)</span> quantiles of the <span class="math inline">\(R\)</span> survival probabilities, respectively.</p>
+</div>
+<div id="direct-transformation" class="section level3">
+<h3>Direct transformation</h3>
+<p>One simple approach, which is often used in practice to calculating confidence intervals (CI) for monotone transformations of the linear predictor, is to apply the transformation to the lower and upper bound of the CI for the linear predictor. Thus, when <span class="math inline">\(\hat{\eta}_j=\bfx_j&#39;\hat{\bsgamma}\)</span> is the log-hazard in the <span class="math inline">\(j\)</span>-th interval with CI</p>
+<p><span class="math display">\[
+[\hat{l}_j=\hat{\eta}_j-\zeta_{1-\alpha/2}\hat{\sigma}_{\hat{\eta}_j},\hat{u}_j =
+\hat{\eta}_j+\zeta_{1-\alpha/2}\hat{\sigma}_{\hat{\eta}_j}]
+\]</span>, with <span class="math inline">\(\zeta_{1-\alpha/2}\)</span> the <span class="math inline">\(1-\alpha/2\)</span> quantile of the normal distribution, the CI for <span class="math inline">\(h(\hat{\eta}_j)\)</span> is obtained by <span class="math inline">\([h(\hat{l}_j); h(\hat{u}_j)]\)</span>.</p>
+</div>
+</div>
+<div id="empirical-results" class="section level2">
+<h2>Empirical Results</h2>
+<div id="data-simulation" class="section level3">
+<h3>Data Simulation</h3>
+<p>We simulate data with log-hazard rate <span class="math display">\[
+\log(\lambda(t|x)) = -3.5 + f(8,2) \cdot 6 - 0.5\cdot x_1 + \sqrt{x_2},
+\]</span> where <span class="math inline">\(f(8,2)\)</span> is the gamma density function with respective parameters.</p>
 <p>The below wrapper creates a data set with <span class="math inline">\(n = 500\)</span> survival times based on above hazard. The simulation of survival times is performed using function <code>pammtools::sim_pexp</code>.</p>
 <pre class="r"><code>sim_wrapper &lt;- function(data, job, n = 500, time_grid = seq(0, 10, by = 0.05)) {
 
@@ -619,9 +895,9 @@ knitr::opts_chunk$set(autodep = TRUE)</code></pre>
   ndf
 }</code></pre>
 </div>
-<div id="estimation" class="section level2">
-<h2>Estimation</h2>
-<p>The below wrapper - transforms the simulated survival data into the <a href="https://adibender.github.io/pammtools/articles/data-transformation.html">PED format</a> - fits the PAMM - returns a data frame that contains the coverage for each method</p>
+<div id="estimation" class="section level3">
+<h3>Estimation</h3>
+<p>The below wrapper - transforms the simulated survival data into the <a href="https://adibender.github.io/pammtools/articles/data-transformation.html">PED format</a> - fits the PAMM - returns a data frame that contains the coverage for each method - two types of splines are considered for the estimation of the baseline hazard, thinplate splines (tp)and P-Splines (ps)</p>
 <p><details> <summary>Expand to see function source code</summary></p>
 <pre class="r"><code>ci_wrapper &lt;- function(
   data,
@@ -695,8 +971,8 @@ knitr::opts_chunk$set(autodep = TRUE)</code></pre>
 }</code></pre>
 <p></details></p>
 </div>
-<div id="evaluation" class="section level2">
-<h2>Evaluation</h2>
+<div id="evaluation" class="section level3">
+<h3>Evaluation</h3>
 <p>We simulate 100 data sets and obtain respective estimates using package <strong><code>batchtools</code></strong>:</p>
 <p><details> <summary> Expand to see <strong><code>batchtools</code></strong> code</summary></p>
 <pre class="r"><code>if (!checkmate::test_directory_exists(&quot;output/sim-conf-int-registry&quot;)) {
@@ -726,6 +1002,7 @@ res     &lt;- reduceResultsDataTable(ids=findDone(ids_res)) %&gt;%
   as_tibble() %&gt;%
   tidyr::unnest(cols = c(result)) %&gt;%
   left_join(pars)</code></pre>
+</div>
 <div id="coverage-table-for-the-hazard-cumulative-hazard-and-survival-probability" class="section level3">
 <h3>Coverage table for the hazard, cumulative hazard and survival probability</h3>
 <pre class="r"><code># RMSE and coverage hazard
@@ -822,27 +1099,28 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
- [1] tidyr_1.0.0          batchtools_0.9.11    data.table_1.12.6   
- [4] pammtools_0.1.14     mgcv_1.8-31          nlme_3.1-142        
- [7] survival_3.1-7       patchwork_0.0.1.9000 ggplot2_3.2.1       
-[10] dplyr_0.8.3         
+ [1] tidyr_1.0.0          RefManageR_1.2.12    batchtools_0.9.11   
+ [4] data.table_1.12.6    pammtools_0.1.14     mgcv_1.8-31         
+ [7] nlme_3.1-142         survival_3.1-7       patchwork_0.0.1.9000
+[10] ggplot2_3.2.1        dplyr_0.8.3         
 
 loaded via a namespace (and not attached):
  [1] progress_1.2.2    tidyselect_0.2.5  xfun_0.11         purrr_0.3.3      
  [5] splines_3.6.1     lattice_0.20-38   colorspace_1.4-1  vctrs_0.2.0      
  [9] expm_0.999-4      htmltools_0.4.0   yaml_2.2.0        rlang_0.4.2      
 [13] later_1.0.0       pillar_1.4.2      glue_1.3.1        withr_2.1.2      
-[17] rappdirs_0.3.1    lifecycle_0.1.0   stringr_1.4.0     munsell_0.5.0    
-[21] gtable_0.3.0      workflowr_1.5.0   mvtnorm_1.0-11    evaluate_0.14    
-[25] knitr_1.26        httpuv_1.5.2      highr_0.8         Rcpp_1.0.3       
-[29] promises_1.1.0    scales_1.1.0      backports_1.1.5   checkmate_1.9.4  
-[33] fs_1.3.1          brew_1.0-6        hms_0.5.2         digest_0.6.23    
-[37] stringi_1.4.3     msm_1.6.7         grid_3.6.1        rprojroot_1.3-2  
-[41] tools_3.6.1       magrittr_1.5      base64url_1.4     lazyeval_0.2.2   
-[45] tibble_2.1.3      Formula_1.2-3     crayon_1.3.4      whisker_0.4      
-[49] pkgconfig_2.0.3   zeallot_0.1.0     Matrix_1.2-17     prettyunits_1.0.2
-[53] assertthat_0.2.1  rmarkdown_1.17    R6_2.4.1          git2r_0.26.1     
-[57] compiler_3.6.1   </code></pre>
+[17] rappdirs_0.3.1    plyr_1.8.4        lifecycle_0.1.0   stringr_1.4.0    
+[21] munsell_0.5.0     gtable_0.3.0      workflowr_1.5.0   mvtnorm_1.0-11   
+[25] evaluate_0.14     knitr_1.26        httpuv_1.5.2      highr_0.8        
+[29] Rcpp_1.0.3        promises_1.1.0    scales_1.1.0      backports_1.1.5  
+[33] checkmate_1.9.4   jsonlite_1.6      fs_1.3.1          brew_1.0-6       
+[37] hms_0.5.2         digest_0.6.23     stringi_1.4.3     msm_1.6.7        
+[41] bibtex_0.4.2      grid_3.6.1        rprojroot_1.3-2   tools_3.6.1      
+[45] magrittr_1.5      base64url_1.4     lazyeval_0.2.2    tibble_2.1.3     
+[49] Formula_1.2-3     crayon_1.3.4      whisker_0.4       pkgconfig_2.0.3  
+[53] zeallot_0.1.0     Matrix_1.2-17     xml2_1.2.2        prettyunits_1.0.2
+[57] lubridate_1.7.4   httr_1.4.1        assertthat_0.2.1  rmarkdown_1.17   
+[61] R6_2.4.1          git2r_0.26.1      compiler_3.6.1   </code></pre>
 </div>
 </div>
 </div>
@@ -861,6 +1139,8 @@ footer is added to webpages before the MathJax javascript. -->
 </script>
 
 
+</div>
+</div>
 
 </div>
 
@@ -893,6 +1173,32 @@ $(document).ready(function () {
 
 <!-- code folding -->
 
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
 <script>
