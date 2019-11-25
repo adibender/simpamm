@@ -11,6 +11,7 @@ navbar:
       href: about.html
     - text: "License"
       href: license.html
+    - text: "Articles"
   right:
     - icon: fa-github
       href: https://github.com/adibender/simpamm
