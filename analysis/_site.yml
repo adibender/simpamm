@@ -11,8 +11,6 @@ navbar:
       href: about.html
     - text: "License"
       href: license.html
-    - text: "Articles"
-      href: pem_vs_pam.html
   right:
     - icon: fa-github
       href: https://github.com/adibender/simpamm
