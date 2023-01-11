@@ -1,0 +1,38 @@
+### [bt]: This is batchtools v0.9.15
+### [bt]: Starting calculation of 1 jobs
+### [bt]: Setting working directory to 'C:/Users/elham/Documents/R/pam_tend_tmid/analysis'
+Lade nötiges Paket: mgcv
+Lade nötiges Paket: nlme
+This is mgcv 1.8-41. For overview type 'help("mgcv-package")'.
+Lade nötiges Paket: dplyr
+
+Attache Paket: 'dplyr'
+
+Das folgende Objekt ist maskiert 'package:nlme':
+
+    collapse
+
+Die folgenden Objekte sind maskiert von 'package:stats':
+
+    filter, lag
+
+Die folgenden Objekte sind maskiert von 'package:base':
+
+    intersect, setdiff, setequal, union
+
+Lade nötiges Paket: tidyr
+Lade nötiges Paket: pammtools
+
+Attache Paket: 'pammtools'
+
+Das folgende Objekt ist maskiert 'package:stats':
+
+    filter
+
+### [bt]: Memory measurement disabled
+### [bt]: Starting job [batchtools job.id=1]
+### [bt]: Generating problem instance for problem 'tend-vs-tmid' ...
+### [bt]: Applying algorithm 'tend-vs-tmid' on problem 'tend-vs-tmid' for job 1 (seed = 20052019) ...
+
+### [bt]: Job terminated successfully [batchtools job.id=1]
+### [bt]: Calculation finished!

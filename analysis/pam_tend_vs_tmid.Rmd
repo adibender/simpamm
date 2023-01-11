@@ -1,0 +1,175 @@
+---
+title: "PAM Interval End Points vs Mid Points "
+site: workflowr::wflow_site
+output:
+  workflowr::wflow_html:
+    toc: true
+---
+```{r setup, message = FALSE}
+library(ggplot2)
+theme_set(theme_bw())
+library(batchtools)
+library(snow)
+library(mgcv)
+library(dplyr)
+library(pammtools)
+```
+
+```{r}
+## simulation function
+sim_wrapper <- function(data, job, n = 250, time_grid = seq(0, 10, by = 0.05)) {
+
+  # create data set with covariates
+  df <- tibble::tibble(x1 = runif(n, -3, 3), x2 = runif(n, 0, 6))
+  # baseline hazard
+  f0 <- function(t) {dgamma(t, 8, 2) * 6}
+  # define function that generates nz exposures z(t_{z,1}), ..., z(t_{z,Q})
+
+  sim_pexp(formula = ~ -3.5 + f0(t), data = df, cut = time_grid)
+
+}
+
+data_ops <- sim_wrapper(data=0, job=0)
+```
+
+Function to estimate hazard from simulated data, either by a PEM or PAM
+
+```{r}
+## estimation function
+pam_wrapper <- function(data, job, instance,
+  cut      = NA,
+  bs       = "ps",
+  int_type = c("tend", "tmid") ,
+  max_time = 10) {
+
+  if(is.na(cut)) {
+    cut <- NULL
+  } else {
+    if(cut == "rough") {
+      cut <- seq(0, max_time, by = 0.5)
+    } else {
+      if(cut == "fine") {
+        cut <- seq(0, max_time, by = 0.2)
+      }
+    }
+  }
+
+  ped <- as_ped(data = instance, formula = Surv(time, status) ~ ., cut = cut, id="id")
+
+  ped <- ped %>% mutate(tmid= tstart + ((tend-tstart)/2))
+    
+  form <- "ped_status ~ s(tend) + s(x1) + s(x2)"
+  if(int_type == "tend") {
+    form     <- ped_status ~ s(tend, bs = bs, k = 10)
+    time_var <- "tend"
+  } else {
+    form     <- ped_status ~ s(tmid, bs = bs, k = 10)
+    time_var <- "tmid"
+  }
+
+  mod <- gam(formula = form, data = ped, family = poisson(), offset = offset, method = "REML")
+  # summary(mod)
+
+  if(int_type == "tend") {
+  make_newdata(ped, tend=unique(tend)) %>%
+    add_hazard(mod, type="link", se_mult = qnorm(0.975), time_var = "tend") %>%
+    mutate(truth = -3.5 + dgamma(tend, 8, 2) * 6)
+  } else {
+      make_newdata(ped, tmid=unique(tmid)) %>%
+    add_hazard(mod, type="link", se_mult = qnorm(0.975), time_var = "tmid") %>%
+    mutate(truth = -3.5 + dgamma(tmid, 8, 2) * 6) %>%
+      mutate(tend=unique(ped$tend)) %>%
+      mutate(tstart=unique(ped$tstart)) %>%
+      mutate(interval=unique(ped$interval))
+  }
+}
+```
+
+# test 
+```{r}
+pam_tend <- pam_wrapper(data=data_ops, instance=data_ops, int_type = "tend", cut="rough")
+pam_tend
+```
+```{r}
+pam_tmid <- pam_wrapper(data=data_ops, instance=data_ops, int_type = "tmid")
+pam_tmid 
+```
+
+
+## Setup simulation registry
+Setup simulation using `batchtools`:
+
+```{r, cache = TRUE, message = FALSE}
+
+  reg <- makeExperimentRegistry("C:/Users/elham/Documents/R/pam_tend_tmid/output/sim-pam-tmid-registry",
+    packages = c("mgcv", "dplyr", "tidyr", "pammtools"),
+    seed     = 20052018)
+  reg$cluster.functions = makeClusterFunctionsSocket(ncpus = 2)
+  addProblem(name   = "tend-vs-tmid", fun = sim_wrapper)
+  addAlgorithm(name = "tend-vs-tmid", fun = pam_wrapper)
+#removeAlgorithms(name = "tend-vs-tmid)
+
+  algo_df <- tidyr::crossing(
+    cut = c(NA, "fine", "rough"),
+    int_type = c("tend", "tmid"))
+
+  addExperiments(algo.design  = list("tend-vs-tmid" = algo_df), repls = 20)
+  submitJobs()
+  waitForJobs()
+
+```
+
+
+## Evaluate Simulation
+
+```{r, message = FALSE, warning=FALSE}
+reg     <- loadRegistry("C:/Users/elham/Documents/R/pam_tend_tmid/output/sim-pam-tmid-registry", writeable = TRUE)
+ids_pam <- findExperiments(prob.name="tend-vs-tmid", algo.name="tend-vs-tmid")
+pars    <- unwrap(getJobPars()) %>% as_tibble()
+res     <- reduceResultsDataTable(ids=findDone(ids_pam)) %>%
+  as_tibble() %>%
+  tidyr::unnest() %>%
+  left_join(pars) %>%
+  mutate(cut = case_when(is.na(cut) ~ "default", TRUE ~ cut))
+
+res %>%
+  mutate(
+    sq_error = (truth - hazard)^2,
+    covered = (truth >= ci_lower) & (truth <= ci_upper)) %>%
+  group_by(job.id, int_type, cut) %>%
+  summarize(
+    RMSE = sqrt(mean(sq_error)),
+    coverage = mean(covered)) %>%
+  group_by(int_type, cut) %>%
+  summarize(
+    RMSE     = mean(RMSE),
+    coverage = mean(coverage))
+
+table(res$tend[res$int_type=="tmid"])
+```
+
+## Visualize Estimations
+```{r}
+ggplot(res, aes(x=tend, y = hazard)) +
+  geom_step(aes(group = job.id), alpha = 0.3) +
+  geom_line(aes(y = truth, col = "truth"), lwd = 2) +
+  facet_grid(cut ~ int_type) +
+  coord_cartesian(ylim=c(-5, 0)) +
+  geom_smooth(aes(col="average estimate"), method="gam", formula = y ~ s(x),
+    se=FALSE) +
+  scale_color_brewer("", palette = "Dark2") +
+  xlab("time")
+
+ggplot(res, aes(x=tmid, y = hazard)) +
+  geom_step(aes(group = job.id), alpha = 0.3) +
+  geom_line(aes(y = truth, col = "truth"), lwd = 2) +
+  facet_grid(cut ~ int_type) +
+  coord_cartesian(ylim=c(-5, 0)) +
+  geom_smooth(aes(col="average estimate"), method="gam", formula = y ~ s(x),
+    se=FALSE) +
+  scale_color_brewer("", palette = "Dark2") +
+  xlab("time")
+```
+
+
+## Conclusion
