@@ -167,7 +167,7 @@ res %>%
 
  
 ## Visualize Estimations
-```{r}
+```{r, warning=FALSE}
 ggplot(res, aes(x=tend, y = hazard)) +
   geom_step(aes(group = job.id), alpha = 0.3) +
   geom_line(aes(y = truth, col = "truth"), lwd = 2) +
