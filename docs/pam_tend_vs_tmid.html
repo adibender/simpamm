@@ -364,7 +364,7 @@ div.tocify {
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
 <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
-workflowr <span class="glyphicon glyphicon-ok text-success"
+workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger"
 aria-hidden="true"></span>
 </button>
 </p>
@@ -375,8 +375,8 @@ aria-hidden="true"></span>
 </li>
 <li>
 <a data-toggle="tab" href="#checks"> Checks <span
-class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
-</a>
+class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> </a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -389,9 +389,9 @@ class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
 </p>
 <p>
 <strong>Checks:</strong> <span
-class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6
 <span class="glyphicon glyphicon-exclamation-sign text-danger"
-aria-hidden="true"></span> 0
+aria-hidden="true"></span> 1
 </p>
 <p>
 <strong>Knit directory:</strong> <code>pam_tend_tmid/</code> <span
@@ -485,16 +485,24 @@ versions is critical for reproducibility.</p>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone">
-<span class="glyphicon glyphicon-ok text-success"
-aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongdetected">
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> <strong>Cache:</strong> detected </a>
 </p>
 </div>
-<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div id="strongCachestrongdetected" class="panel-collapse collapse">
 <div class="panel-body">
-<p>Nice! There were no cached chunks for this analysis, so you can be
-confident that you successfully produced the results during this
-run.</p>
+The following chunks had caches available:
+<ul>
+<li>
+unnamed-chunk-3
+</li>
+</ul>
+<p>To ensure reproducibility of the results, delete the cache directory
+<code>pam_tend_vs_tmid_cache</code> and re-run the analysis. To have
+workflowr automatically delete the cache directory prior to building the
+file, set <code>delete_cache = TRUE</code> when running
+<code>wflow_build()</code> or <code>wflow_publish()</code>.</p>
 </div>
 </div>
 </div>
@@ -516,15 +524,15 @@ project makes it easier to run your code on other machines.</p>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomnikitapaschanpamtendtmidtreea92e40115604099d0ec1c38393fd7c05a1fe6167targetblanka92e401a">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomnikitapaschanpamtendtmidtree60a136c5cc4051f9174685b8e77b088230ff3ad0targetblank60a136ca">
 <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span> <strong>Repository version:</strong>
-<a href="https://github.com/nikitapaschan/pam_tend_tmid/tree/a92e40115604099d0ec1c38393fd7c05a1fe6167" target="_blank">a92e401</a>
+<a href="https://github.com/nikitapaschan/pam_tend_tmid/tree/60a136c5cc4051f9174685b8e77b088230ff3ad0" target="_blank">60a136c</a>
 </a>
 </p>
 </div>
 <div
-id="strongRepositoryversionstrongahrefhttpsgithubcomnikitapaschanpamtendtmidtreea92e40115604099d0ec1c38393fd7c05a1fe6167targetblanka92e401a"
+id="strongRepositoryversionstrongahrefhttpsgithubcomnikitapaschanpamtendtmidtree60a136c5cc4051f9174685b8e77b088230ff3ad0targetblank60a136ca"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -534,7 +542,7 @@ reproducibility.
 </p>
 <p>
 The results in this page were generated with repository version
-<a href="https://github.com/nikitapaschan/pam_tend_tmid/tree/a92e40115604099d0ec1c38393fd7c05a1fe6167" target="_blank">a92e401</a>.
+<a href="https://github.com/nikitapaschan/pam_tend_tmid/tree/60a136c5cc4051f9174685b8e77b088230ff3ad0" target="_blank">60a136c</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -550,6 +558,7 @@ were generated:
 <pre><code>
 Ignored files:
     Ignored:    .Rproj.user/
+    Ignored:    analysis/pam_tend_vs_tmid_cache/
     Ignored:    output/sim-pam-tmid-registry/exports/
     Ignored:    output/sim-pam-tmid-registry/external/
     Ignored:    output/sim-pam-tmid-registry/jobs/
@@ -1860,6 +1869,40 @@ Message
 Rmd
 </td>
 <td>
+<a href="https://github.com/nikitapaschan/pam_tend_tmid/blob/60a136c5cc4051f9174685b8e77b088230ff3ad0/analysis/pam_tend_vs_tmid.Rmd" target="_blank">60a136c</a>
+</td>
+<td>
+nikitapaschan
+</td>
+<td>
+2023-01-15
+</td>
+<td>
+workflowr::wflow_publish("analysis/pam_tend_vs_tmid.Rmd", update = T)
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/nikitapaschan/pam_tend_tmid/8c5434c09a4f79a8b4351729dc8905a7c69c8d25/docs/pam_tend_vs_tmid.html" target="_blank">8c5434c</a>
+</td>
+<td>
+nikitapaschan
+</td>
+<td>
+2023-01-15
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
 <a href="https://github.com/nikitapaschan/pam_tend_tmid/blob/a92e40115604099d0ec1c38393fd7c05a1fe6167/analysis/pam_tend_vs_tmid.Rmd" target="_blank">a92e401</a>
 </td>
 <td>
@@ -2082,8 +2125,6 @@ res %&gt;%
     se=FALSE) +
   scale_color_brewer(&quot;&quot;, palette = &quot;Dark2&quot;) +
   xlab(&quot;time&quot;)</code></pre>
-<pre><code>Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
-ℹ Please use `linewidth` instead.</code></pre>
 <p><img src="figure/pam_tend_vs_tmid.Rmd/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 <div id="conclusion" class="section level2">
