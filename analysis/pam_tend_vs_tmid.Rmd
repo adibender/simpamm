@@ -8,12 +8,29 @@ output:
 ```{r setup, message = FALSE}
 library(ggplot2)
 theme_set(theme_bw())
+library(gridExtra)
+library(grid)
+library(stats)
+library(gtable)
+library(jsonlite)
+library(parallel)
+library(doParallel)
+library(methods)
+library(Matrix)
+library(Rcpp)
+library(assertthat)
+library(dplyr)
+library(glue)
+library(tibble)
+library(parallel)
 library(batchtools)
 library(snow)
 library(mgcv)
+library(nlme)
 library(dplyr)
-library(pammtools)
+library(pammtools) 
 ```
+
 
 ## Motivation
 This small simulation study investigates the hazards of PAMs evaluated at
@@ -54,8 +71,6 @@ sim_wrapper <- function(data, job, n = 250, time_grid = seq(0, 10, by = 0.05)) {
   sim_pexp(formula = ~ -3.5 + f0(t), data = df, cut = time_grid)
 
 }
-
-data_ops <- sim_wrapper(data=0, job=0)
 ```
 
 
@@ -67,7 +82,7 @@ endpoints or midpoints
 pam_wrapper2 <- function(data, job, instance,
   cut      = NA,
   bs       = "ps",
-  int_type = c("end point", "mid point") ,
+  int_type = c("endpoint", "midpoint") ,
   max_time = 10) {
 
   if(is.na(cut)) {
@@ -83,43 +98,29 @@ pam_wrapper2 <- function(data, job, instance,
   }
 
   ped <- as_ped(data = instance, formula = Surv(time, status) ~ ., cut = cut, id="id")
-
   ped <- ped %>% mutate(tmid= tstart + ((tend-tstart)/2))
-    
-  form <- "ped_status ~ s(tend) + s(x1) + s(x2)"
-  if(int_type == "end point") {
-    form     <- ped_status ~ s(tend, bs = "bs", k = 10)
-    time_var <- "tend"
-  } else {
-    form     <- ped_status ~ s(tmid, bs = bs, k = 10)
-    time_var <- "tmid"
-  }
+  
+  form <- switch(int_type, 
+               endpoint = ped_status ~ s(tend, bs = bs, k = 10), 
+               midpoint = ped_status ~ s(tmid, bs = bs, k = 10))
+
 
   mod <- gam(formula = form, data = ped, family = poisson(), offset = offset, method = "REML")
-  # summary(mod)
+  #summary(mod)
 
-  if(int_type == "end point") {
-  make_newdata(ped, tend=unique(tend)) %>%
-    add_hazard(mod, type="link", se_mult = qnorm(0.975), time_var = "tend") %>%
-    mutate(truth = -3.5 + dgamma(tend, 8, 2) * 6) %>%
-    mutate(tmid=unique(ped$tmid))
-  } else {
-      make_newdata(ped, tmid=unique(tmid)) %>%
-    add_hazard(mod, type="link", se_mult = qnorm(0.975), time_var = "tmid") %>%
-    mutate(truth = -3.5 + dgamma(tmid, 8, 2) * 6) %>%
-      mutate(tend=unique(ped$tend)) %>%
-      mutate(tstart=unique(ped$tstart)) %>%
-      mutate(interval=unique(ped$interval)) %>%
-      mutate(intlen=unique(ped$intlen))
-  }
+# Create new dataframe with hazards   
+  data_seq <- data.frame(tend = seq(0.01, 10, 0.1), tmid=seq(0.01, 10, 0.1))
+
+  data_seq <- data_seq %>%
+    add_hazard(mod, type = "link", se_mult = qnorm(0.975), time_var = if(int_type == "endpoint") "tend" else "tmid") %>%
+    mutate(truth = -3.5 + dgamma(if (int_type == "endpoint") tend else tmid, 8, 2) * 6)
 }
 ```
-
 
 ## Setup simulation registry
 Setup simulation using `batchtools`:
 
-```{r, cache = TRUE, message = FALSE}
+```{r, cache = TRUE, message = FALSE, warning=FALSE}
 if(!checkmate::test_directory_exists("output/sim-pam-tmid-registry")) {
   reg <- makeExperimentRegistry("output/sim-pam-tmid-registry",
     packages = c("mgcv", "dplyr", "tidyr", "pammtools"),
@@ -130,12 +131,12 @@ if(!checkmate::test_directory_exists("output/sim-pam-tmid-registry")) {
 
   algo_df <- tidyr::crossing(
     cut = c(NA, "fine", "rough"),
-    int_type = c("end point", "mid point"))
+    int_type = c("endpoint", "midpoint"))
 
   addExperiments(algo.design  = list("tend-vs-tmid" = algo_df), repls = 100)
-  submitJobs()
+  submitJobs() #try testJob()
   waitForJobs()
-  }
+}
 ```
 
 
@@ -163,12 +164,12 @@ res %>%
   summarize(
     RMSE     = mean(RMSE),
     coverage = mean(coverage))
-```
 
- 
+```
+ .1
 ## Visualize Estimations
 ```{r, warning=FALSE}
-ggplot(res, aes(x=tend, y = hazard)) +
+ggplot(res, aes(x=tmid, y = hazard)) +
   geom_step(aes(group = job.id), alpha = 0.3) +
   geom_line(aes(y = truth, col = "truth"), lwd = 2) +
   facet_grid(cut ~ int_type) +
@@ -177,12 +178,12 @@ ggplot(res, aes(x=tend, y = hazard)) +
     se=FALSE) +
   scale_color_brewer("", palette = "Dark2") +
   xlab("time")
+
 ```
 
 ## Conclusion
-- With an exception to the rough setting, PAMs evaluated at mid-interval points rather than endpoints seem to have a slightly higher RMSE. 
-- Concerning the coverage, all of the PAMs under performed, such that none reached
-the norm coverage of 0.95. In the comparison between the PAMs, the coverage for
-interval midpoints is slightly higher than for interval endpoints.
-- However, PAMs at mid interval points show no substantial improvement for the coverage and might worsen the model fit. The only setting where the RMSE and coverage of the interval midpoints seem superior to ones of the endpoints is the rough setting. 
+- With an exception to the default setting, PAMs evaluated at interval endpoints rather than  midpoint seem to have a slightly higher RMSE. 
+- Concerning the coverage, all of the PAMs underperformed, such that none reached
+the norm coverage of 0.95. A comparison between the models reveals that the coverage for interval midpoints is slightly higher than for interval endpoints and therefore preferable. 
+- Overall, PAMs at mid interval points show no substantial improvement for the coverage and might worsen the model fit. They cannot be recommended over endpoints as a general rule. 
 
