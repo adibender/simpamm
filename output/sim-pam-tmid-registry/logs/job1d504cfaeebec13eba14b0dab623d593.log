@@ -1,0 +1,10 @@
+### [bt]: This is batchtools v0.9.15
+### [bt]: Starting calculation of 1 jobs
+### [bt]: Setting working directory to 'C:/Users/elham/Documents/R/pam_tend_tmid/analysis'
+### [bt]: Memory measurement disabled
+### [bt]: Starting job [batchtools job.id=26]
+### [bt]: Generating problem instance for problem 'tend-vs-tmid' ...
+### [bt]: Applying algorithm 'tend-vs-tmid' on problem 'tend-vs-tmid' for job 26 (seed = 20052044) ...
+
+### [bt]: Job terminated successfully [batchtools job.id=26]
+### [bt]: Calculation finished!

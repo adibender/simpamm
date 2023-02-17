@@ -1,0 +1,189 @@
+---
+title: "PAM Interval Endpoints vs. Midpoints"
+site: workflowr::wflow_site
+output:
+  workflowr::wflow_html:
+    toc: true
+---
+```{r setup, message = FALSE}
+library(ggplot2)
+theme_set(theme_bw())
+library(gridExtra)
+library(grid)
+library(stats)
+library(gtable)
+library(jsonlite)
+library(parallel)
+library(doParallel)
+library(methods)
+library(Matrix)
+library(Rcpp)
+library(assertthat)
+library(dplyr)
+library(glue)
+library(tibble)
+library(parallel)
+library(batchtools)
+library(snow)
+library(mgcv)
+library(nlme)
+library(dplyr)
+library(pammtools) 
+```
+
+
+## Motivation
+This small simulation study investigates the hazards of PAMs evaluated at
+interval midpoints and how they compare to the usual approach of PAMs evaluated at interval endpoints. 
+
+## Setup
+This simulation study builds on the simulation study 
+"PEM vs. PAM split point sensitivity"
+and therefore uses the same data setting: 
+
+- $n=250$ survival times are simulated from a distribution with log-hazard
+$-3.5 + f(8,2)*6$, where $f(8,2)$ is the density function of the Gamma 
+distribution with respective parameters.
+
+- The baseline hazard is estimated by a PAM for interval endpoints or interval
+midpoints respectively
+
+- Three different settings are used for the interval split point definition
+
+  1. "default": Unique event times from each simulated data set is used
+  2. "fine": A fine, equidistant grid with interval lengths $0.2$
+  3. "rough": A rough, equidistant grid with interval lengths $0.5$
+
+- For each setting, 100 replications are run
+
+
+Function for data simulation (using `pammtools::sim_pexp`):
+```{r}
+## simulation function
+sim_wrapper <- function(data, job, n = 250, time_grid = seq(0, 10, by = 0.05)) {
+
+  # create data set with covariates
+  df <- tibble::tibble(x1 = runif(n, -3, 3), x2 = runif(n, 0, 6))
+  # baseline hazard
+  f0 <- function(t) {dgamma(t, 8, 2) * 6}
+  # define function that generates nz exposures z(t_{z,1}), ..., z(t_{z,Q})
+
+  sim_pexp(formula = ~ -3.5 + f0(t), data = df, cut = time_grid)
+
+}
+```
+
+
+Function to estimate hazard from simulated data, either at interval 
+endpoints or midpoints 
+
+```{r}
+## estimation function
+pam_wrapper2 <- function(data, job, instance,
+  cut      = NA,
+  bs       = "ps",
+  int_type = c("endpoint", "midpoint") ,
+  max_time = 10) {
+
+  if(is.na(cut)) {
+    cut <- NULL
+  } else {
+    if(cut == "rough") {
+      cut <- seq(0, max_time, by = 0.5)
+    } else {
+      if(cut == "fine") {
+        cut <- seq(0, max_time, by = 0.2)
+      }
+    }
+  }
+
+  ped <- as_ped(data = instance, formula = Surv(time, status) ~ ., cut = cut, id="id")
+  ped <- ped %>% mutate(tmid= tstart + ((tend-tstart)/2))
+  
+  form <- switch(int_type, 
+               endpoint = ped_status ~ s(tend, bs = bs, k = 10), 
+               midpoint = ped_status ~ s(tmid, bs = bs, k = 10))
+
+
+  mod <- gam(formula = form, data = ped, family = poisson(), offset = offset, method = "REML")
+  #summary(mod)
+
+# Create new dataframe with hazards   
+  data_seq <- data.frame(tend = seq(0.01, 10, 0.1), tmid=seq(0.01, 10, 0.1))
+
+  data_seq <- data_seq %>%
+    add_hazard(mod, type = "link", se_mult = qnorm(0.975), time_var = if(int_type == "endpoint") "tend" else "tmid") %>%
+    mutate(truth = -3.5 + dgamma(if (int_type == "endpoint") tend else tmid, 8, 2) * 6)
+}
+```
+
+## Setup simulation registry
+Setup simulation using `batchtools`:
+
+```{r, cache = TRUE, message = FALSE, warning=FALSE}
+if(!checkmate::test_directory_exists("output/sim-pam-tmid-registry")) {
+  reg <- makeExperimentRegistry("output/sim-pam-tmid-registry",
+    packages = c("mgcv", "dplyr", "tidyr", "pammtools"),
+    seed     = 20052018)
+  reg$cluster.functions = makeClusterFunctionsSocket(ncpus = 2)
+  addProblem(name   = "tend-vs-tmid", fun = sim_wrapper, seed = 20052018)
+  addAlgorithm(name = "tend-vs-tmid", fun = pam_wrapper2)
+
+  algo_df <- tidyr::crossing(
+    cut = c(NA, "fine", "rough"),
+    int_type = c("endpoint", "midpoint"))
+
+  addExperiments(algo.design  = list("tend-vs-tmid" = algo_df), repls = 100)
+  submitJobs() #try testJob()
+  waitForJobs()
+}
+```
+
+
+## Evaluate Simulation
+
+```{r, message = FALSE, warning=FALSE}
+reg     <- loadRegistry("output/sim-pam-tmid-registry", writeable = TRUE)
+ids_pam <- findExperiments(prob.name="tend-vs-tmid", algo.name="tend-vs-tmid")
+pars    <- unwrap(getJobPars()) %>% as_tibble()
+res     <- reduceResultsDataTable(ids=findDone(ids_pam)) %>%
+  as_tibble() %>%
+  tidyr::unnest() %>%
+  left_join(pars) %>%
+  mutate(cut = case_when(is.na(cut) ~ "default", TRUE ~ cut))
+
+res %>%
+  mutate(
+    sq_error = (truth - hazard)^2,
+    covered = (truth >= ci_lower) & (truth <= ci_upper)) %>%
+  group_by(job.id, int_type, cut) %>%
+  summarize(
+    RMSE = sqrt(mean(sq_error)),
+    coverage = mean(covered)) %>%
+  group_by(int_type, cut) %>%
+  summarize(
+    RMSE     = mean(RMSE),
+    coverage = mean(coverage))
+
+```
+ .1
+## Visualize Estimations
+```{r, warning=FALSE}
+ggplot(res, aes(x=tmid, y = hazard)) +
+  geom_step(aes(group = job.id), alpha = 0.3) +
+  geom_line(aes(y = truth, col = "truth"), lwd = 2) +
+  facet_grid(cut ~ int_type) +
+  coord_cartesian(ylim=c(-5, 0)) +
+  geom_smooth(aes(col="average estimate"), method="gam", formula = y ~ s(x),
+    se=FALSE) +
+  scale_color_brewer("", palette = "Dark2") +
+  xlab("time")
+
+```
+
+## Conclusion
+- With an exception to the default setting, PAMs evaluated at interval endpoints rather than  midpoint seem to have a slightly higher RMSE. 
+- Concerning the coverage, all of the PAMs underperformed, such that none reached
+the norm coverage of 0.95. A comparison between the models reveals that the coverage for interval midpoints is slightly higher than for interval endpoints and therefore preferable. 
+- Overall, PAMs at mid interval points show no substantial improvement for the coverage and might worsen the model fit. They cannot be recommended over endpoints as a general rule. 
+

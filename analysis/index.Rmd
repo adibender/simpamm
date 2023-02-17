@@ -12,4 +12,7 @@ A list of simulations available in this repository is given below:
 
 - [PEM vs. PAM split point sensitivity](pem_vs_pam.html)
 
+- [PAM Interval Endpoints vs. Midpoints](pam_tend_vs_tmid.html)
+
 - [Confidence Intervals](confidence-intervals.html)
+
